@@ -1,10 +1,8 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
 
-$config['ssl'] = TRUE;		// TRUE or FALSE
-$config['user'] = '';
-$config['password'] = '';
-$config['host'] = '';
-$config['port'] = '';
+$config['ssl'] = false;
+$config['host'] = 'localhost';
+$config['port'] = '18332';
 
 //$config['ssl'] = false;
 //$config['user'] = 'test';
