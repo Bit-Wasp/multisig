@@ -1,36 +1,26 @@
 <?php
+
 require_once(dirname(__FILE__).'/ecc-lib/auto_load.php');
-require_once(dirname(__FILE__).'/bitcoin/BitcoinLib.php');
+require_once(dirname(__FILE__).'/BitcoinLib.php');
+
+/**
+ * Electrum Library
+ * 
+ * This class contains functions which implement the electrum standard
+ * functionality.
+ * 
+ * - A function which stretches the seed many times into a 64bit key.
+ * - A function to generate a master public key from the seed.
+ * - A function to generate a private key given the seed, child number, 
+ *   and whether it's a change address. 
+ * - A function to generate the public key from the master public key.
+ * - A function to generate an address from the master public key and an
+ *   address version.
+ * - A function to decode a seed from a sequence of words from the electrum
+ *   word list.
+*/
 
 class Electrum {
-
-	/**
-	 * CI
-	 * 
-	 * This variable contains an instance of the CodeIgniter framework.
-	 */
-	public $CI;
-	
-	/**
-	 * Magic Byte
-	 * 
-	 * This variable contains a $magic_byte, used to indicate the protocol
-	 * or purpose of the address. It is set in the constructor parameters,
-	 * and must be supplied in order to work correctly.
-	 */
-	public $magic_byte;
-	
-	
-	/**
-	 * Construct
-	 * 
-	 * This function accepts a $params array. This is required, as the 
-	 * $params['magic_byte'] value must be supplied to generate addresses.
-	 */
-	public function __construct($params) {
-		$this->CI = &get_instance();
-		$this->magic_byte = $params['magic_byte'];
-	}
 
 	/**
 	 * Stretch Seed
@@ -131,20 +121,9 @@ class Electrum {
 	public function public_key_from_mpk($mpk, $iteration, $change = 0) {
 		$change = ($change == '0') ? '0' : '1';
 		
-		// Define the elliptic curve
-		$_p = gmp_init('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F', 16);
-		$_a = gmp_init('0000000000000000000000000000000000000000000000000000000000000000', 16);
-		$_b = gmp_init('0000000000000000000000000000000000000000000000000000000000000007', 16);
-		$_Gx = gmp_init('79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798', 16);
-		$_Gy = gmp_init('483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8', 16);
-		
-		// Large prime order 'n' of G. 
-		$_n = gmp_init('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141', 16);
-		//h = 1.
-		
 		// Generate the curve, and the generator point.
-		$curve = new CurveFp($_p, $_a, $_b);		
-		$gen = new Point($curve, $_Gx, $_Gy, $_n);
+		$curve = SECcurve::curve_secp256k1();
+		$gen = SECcurve::generator_secp256k1();
 			
 		// Prepare the input values, by converting the MPK to X and Y coordinates
 		$x = gmp_init(substr($mpk, 0, 64), 16);

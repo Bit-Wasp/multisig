@@ -19,7 +19,7 @@ class Multisig2of3 extends CI_Controller {
 	 */
 	public function index()
 	{
-		$this->load->library('bitcoin/BitcoinLib'); // Load general bitcoin functions
+		$this->load->library('BitcoinLib'); // Load general bitcoin functions
 
 		// Do Form Validation
 		if($this->form_validation->run('submit_3public_keys') == TRUE)
@@ -57,7 +57,6 @@ class Multisig2of3 extends CI_Controller {
 	
 	public function pay3address()
 	{
-		$this->load->library('form_validation');
 		$data['address'] = $this->session->userdata('address');
 		if($data['address'] == NULL)
 			redirect('/');
@@ -68,13 +67,6 @@ class Multisig2of3 extends CI_Controller {
 		// Load the raw transaction from the submitted transaction ID.
 		$rawtransaction = $this->bitcoin->getrawtransaction($transaction_id);
 		$data['rawtransaction'] = $this->bitcoin->decoderawtransaction($rawtransaction);
-		
-		// Load the script pubkey
-		foreach($data['rawtransaction']['vout'] as $vout => $output)
-		{
-			$value = $output['value'];
-				break;
-		}
 		
 		// Generate the transaction
 		$extras = array('redeemScript' => $this->session->userdata('redeemScript'));

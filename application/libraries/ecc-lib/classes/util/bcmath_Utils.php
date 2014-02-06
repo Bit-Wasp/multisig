@@ -28,7 +28,7 @@ if (!defined('MAX_BASE'))
 class bcmath_Utils {
 
     public static function bcrand($min, $max=false) {
-        if (extension_loaded('bcmath') && USE_EXT=='BCMATH') {
+        if (extension_loaded('bcmath') ) {
             if (!$max) {
                 $max = $min;
                 $min = 0;
@@ -41,7 +41,7 @@ class bcmath_Utils {
     }
 
     public static function bchexdec($hex) {
-        if (extension_loaded('bcmath') && USE_EXT=='BCMATH') {
+        if (extension_loaded('bcmath') ) {
             $len = strlen($hex);
             $dec = '';
             for ($i = 1; $i <= $len; $i++)
@@ -54,7 +54,7 @@ class bcmath_Utils {
     }
 
     public static function bcdechex($dec) {
-        if (extension_loaded('bcmath') && USE_EXT=='BCMATH') {
+        if (extension_loaded('bcmath') ) {
             $hex = '';
             $positive = $dec < 0 ? false : true;
 
@@ -79,7 +79,7 @@ class bcmath_Utils {
     }
 
     public static function bcand($x, $y) {
-        if (extension_loaded('bcmath') && USE_EXT=='BCMATH') {
+        if (extension_loaded('bcmath') ) {
             return self::_bcbitwise_internal($x, $y, 'bcmath_Utils::_bcand');
         } else {
             throw new ErrorException("Please install BCMATH");
@@ -89,7 +89,7 @@ class bcmath_Utils {
 // Bitwise OR
 
     public static function bcor($x, $y) {
-        if (extension_loaded('bcmath') && USE_EXT=='BCMATH') {
+        if (extension_loaded('bcmath') ) {
             return self::_bcbitwise_internal($x, $y, 'self::_bcor');
         } else {
             throw new ErrorException("Please install BCMATH");
@@ -99,7 +99,7 @@ class bcmath_Utils {
 // Bitwise XOR
 
     public static function bcxor($x, $y) {
-        if (extension_loaded('bcmath') && USE_EXT=='BCMATH') {
+        if (extension_loaded('bcmath') ) {
             return self::_bcbitwise_internal($x, $y, 'self::_bcxor');
         } else {
             throw new ErrorException("Please install BCMATH");
@@ -109,7 +109,7 @@ class bcmath_Utils {
 // Left shift (<<)
 
     public static function bcleftshift($num, $shift) {
-        if (extension_loaded('bcmath') && USE_EXT=='BCMATH') {
+        if (extension_loaded('bcmath') ) {
             bcscale(0);
             return bcmul($num, bcpow(2, $shift));
         } else {
@@ -120,7 +120,7 @@ class bcmath_Utils {
 // Right shift (>>)
 
     public static function bcrightshift($num, $shift) {
-        if (extension_loaded('bcmath') && USE_EXT=='BCMATH') {
+        if (extension_loaded('bcmath') ) {
             bcscale(0);
             return bcdiv($num, bcpow(2, $shift));
         } else {
@@ -189,7 +189,7 @@ class bcmath_Utils {
     }
 
     public static function dec2base($dec, $base, $digits=FALSE) {
-        if (extension_loaded('bcmath') && USE_EXT=='BCMATH') {
+        if (extension_loaded('bcmath') ) {
             if ($base < 2 or $base > 256)
                 die("Invalid Base: " . $base);
             bcscale(0);
@@ -209,7 +209,7 @@ class bcmath_Utils {
     }
 
     public static function base2dec($value, $base, $digits=FALSE) {
-        if (extension_loaded('bcmath') && USE_EXT=='BCMATH') {
+        if (extension_loaded('bcmath') ) {
             if ($base < 2 or $base > 256)
                 die("Invalid Base: " . $base);
             bcscale(0);

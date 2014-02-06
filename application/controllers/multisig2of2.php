@@ -19,10 +19,11 @@ class Multisig2of2 extends CI_Controller {
 	 */
 	public function index()
 	{
-		$this->load->library('bitcoin/BitcoinLib'); // Load general bitcoin functions
+		$this->load->library('BitcoinLib'); // Load general bitcoin functions
 		
 		// Do Form Validation
-		if($this->form_validation->run('submit_2public_keys') == TRUE){
+		if($this->form_validation->run('submit_2public_keys') == TRUE)
+		{
 			// Load the public key from POST
 			$data['pubkeys']['public_key1'] = $this->input->post('public_key1');
 			$data['pubkeys']['public_key2'] = $this->input->post('public_key2');
@@ -55,7 +56,6 @@ class Multisig2of2 extends CI_Controller {
 	
 	public function pay2address()
 	{
-		$this->load->library('form_validation');
 		$data['address'] = $this->session->userdata('address');
 		if($data['address'] == NULL)
 			redirect('/');
@@ -67,12 +67,6 @@ class Multisig2of2 extends CI_Controller {
 		$rawtransaction = $this->bitcoin->getrawtransaction($transaction_id);
 		$data['rawtransaction'] = $this->bitcoin->decoderawtransaction($rawtransaction);
 		
-		// Load the script pubkey
-		foreach($data['rawtransaction']['vout'] as $vout => $output)
-		{
-			$value = $output['value'];
-				break;
-		}
 		// Generate the transaction
 		$extras = array('redeemScript' => $this->session->userdata('redeemScript'));
 		$this->transaction->add_input($transaction_id, $vout, $extras);
@@ -83,11 +77,6 @@ class Multisig2of2 extends CI_Controller {
 		// Create, decode, and sign the new transaction
 		$data['newrawtransaction'] = $this->bitcoin->createrawtransaction($generated);
 		$data['decodenewtransaction'] = $this->bitcoin->decoderawtransaction($data['newrawtransaction']);
-		echo json_encode(array('scriptPubKey' => $data['decodenewtransaction']['vout'][0]['scriptPubKey']['hex'],
-						 'redeemScript' => $this->session->userdata('redeemScript'),
-						 'KeyID' => '0',
-						 'address' => '15ZL6i899dDBXm8NoXwn7oup4J5yQJi1NH',
-						 'signatures' => ''));
 		$data['json_input'] = json_encode($generated['inputs']);
 		$private_key = $this->session->userdata('privKey');
 		$data['signedtransaction'] = $this->bitcoin->signrawtransaction($data['newrawtransaction'], $generated['inputs'], array($private_key));

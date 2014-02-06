@@ -1,6 +1,6 @@
 <?php //if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-require_once(dirname(__FILE__).'/../ecc-lib/auto_load.php');
+require_once(dirname(__FILE__).'/ecc-lib/auto_load.php');
 
 class BitcoinLib {
 	
@@ -21,7 +21,7 @@ class BitcoinLib {
 	/**
 	 * Hex Encode 
 	 * 
-	 * Encodes a ecimal $number into a hexadecimal string.
+	 * Encodes a decimal $number into a hexadecimal string.
 	 * 
 	 * @param	int	$number
 	 * @return	string
@@ -238,7 +238,7 @@ class BitcoinLib {
 	 * converts to the bitcoin address, using the $address_version.
 	 * 
 	 * @param	string	$private_key
-	 * @param	string	$address_version
+	 * @param	string	$address_versionh
 	 * @return	string
 	 */
 	public static function private_key_to_address($private_key, $address_version) {
@@ -412,15 +412,18 @@ class BitcoinLib {
 	 * @param	string	$passpoint
 	 * @return	string
 	 */
-	public static function decompress_public_key($y_byte, $passpoint) {
-		$oldpass = $passpoint;
-		$passpoint = gmp_init($passpoint, 16);
+	public static function decompress_public_key($key) {
+		$y_byte = substr($key, 0, 2);
+		$x_coordinate = substr($key, 2);
+		$x = gmp_init($x_coordinate, 16);
 		$curve_params = SECcurve::secp256k1_params();
+		$curve = SECcurve::curve_secp256k1();
+		$generator = SECcurve::generator_secp256k1();
 		
-		$x3 = NumberTheory::modular_exp( $passpoint, 3, $curve_params['p'] );
+		$x3 = NumberTheory::modular_exp( $x, 3, $curve_params['p'] );
 		$y2 = gmp_add(
-						$x3,
-						$curve_params['b']
+					$x3,
+					$curve_params['b']
 				);
 		
 		$y0 = NumberTheory::square_root_mod_prime(
@@ -436,9 +439,10 @@ class BitcoinLib {
 		}
 		$y_coordinate = gmp_strval($y_coordinate, 16);
 		
-		return array('x' => $oldpass, 
+		return array('x' => $x_coordinate, 
 					 'y' => $y_coordinate,
-					 'public_key' => '04'.$oldpass.$y_coordinate);
+					 'point' => new Point($curve, gmp_init($x_coordinate, 16), gmp_init($y_coordinate, 16), $generator->getOrder()),
+					 'public_key' => '04'.$x_coordinate.$y_coordinate);
 	}
 
 }
