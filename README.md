@@ -5,6 +5,8 @@ Demonstration of multi-signature transactions on a web application.
 
 This project is a PHP/CodeIgniter application, which allows users to test a multisignature transaction. Currently offers 2 of 2, and 2 of 3 signature p2sh addresses. 
 
+It also includes some libraries with implementations of BIP32, electrum, and some key manipulation functions, as well as a jsonRPCclient for CodeIgniter, a Bitcoin API wrapper for this library and CodeIgniter. It also has a CodeIgniter library to assist in generating raw transactions.
+
 Requirements:
 - Bitcoind
    - Bitcoind must be maintaining a full transaction index (txindex=1 in bitcoin.conf)
