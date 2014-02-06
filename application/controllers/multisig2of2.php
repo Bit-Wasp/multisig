@@ -68,6 +68,20 @@ class Multisig2of2 extends CI_Controller {
 		$data['rawtransaction'] = $this->bitcoin->decoderawtransaction($rawtransaction);
 		
 		// Generate the transaction
+		$found = FALSE;
+		// Generate the transaction
+		foreach($data['rawtransaction']['vout'] as $vout => $output) {
+			$value = $output['value'];
+			foreach($output['scriptPubKey']['addresses'] as $addr) {
+				if($addr == $data['address']) {
+					$found = TRUE;
+					break;
+				}
+			}
+			if($found == TRUE)
+				break;
+		}
+
 		$extras = array('redeemScript' => $this->session->userdata('redeemScript'));
 		$this->transaction->add_input($transaction_id, $vout, $extras);
 		$this->transaction->add_output($this->input->post('destination'), $value-0.0001);
