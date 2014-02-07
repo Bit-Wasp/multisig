@@ -1,6 +1,5 @@
 <?php
 
-require_once(dirname(__FILE__).'/../application/libraries/ecc-lib/auto_load.php');
 require_once(dirname(__FILE__).'/../application/libraries/BitcoinLib.php');
 require_once(dirname(__FILE__).'/../application/libraries/BIP32.php');
 

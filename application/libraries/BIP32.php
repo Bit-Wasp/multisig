@@ -283,11 +283,14 @@ class BIP32 {
 			return FALSE;
 		}
 		$address_definition = self::get_definition_tuple($parent, $string_def);
-		$extended_key = self::CKD($parent, $address_definition);
+		
 		if(isset($def)== TRUE){
-			$extended_key[1] = $def."/".$extended_key[1];
+			$extended_key = self::CKD($parent, $address_definition, explode("/", $def));
+			return $extended_key;
+		} else {
+			$extended_key = self::CKD($parent, $address_definition);
+			return $extended_key;
 		}
-		return $extended_key;
 	}
 	
 	/**
