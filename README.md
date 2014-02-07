@@ -31,6 +31,15 @@ Bitcoin key processing library
 Raw transaction crafting library for CodeIgniter
 
 
+Examples
+===
+
+There is
+-  a script with sample usage of the bitcoin library.
+-  a script with sample usage of the electrum library.
+-  a script with sample usage of the BIP32 library.
+-  a script demoing BIP32 key derivation for multisig.
+
 Licence
 ===
 This is free and unencumbered software released into the public domain.

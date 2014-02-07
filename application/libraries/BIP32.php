@@ -137,7 +137,7 @@ class BIP32 {
 			if($previous['type'] == 'public')
 				return FALSE; // Cannot derive private from public key.
 			$data = '00'.$private_key.$i;
-		} else {
+		} else if($is_prime == 0) {
 			$data = $public_key.$i;
 		}
 
@@ -161,7 +161,7 @@ class BIP32 {
 		if(count($generated) == 0 && $previous['depth'] == 0)
 			array_push($generated, (($previous['type'] == 'private') ? 'm' : 'M'));
 			
-		array_push($generated, (self::get_address_number($i).(($is_prime == 1) ? "'" : NULL)));
+		array_push($generated, (self::get_address_number($i, $is_prime).(($is_prime == 1) ? "'" : NULL)));
 		
 		$g = SECcurve::generator_secp256k1();
 		$n = $g->getOrder();
@@ -199,9 +199,8 @@ class BIP32 {
 			$key = BitcoinLib::compress_public_key('04'.$new_x.$new_y);
 			
 		}
-		
 		if(!isset($key)) return FALSE;
-		
+
 		$data = array(
 					 'network' => $previous['network'],
 					 'testnet' => $previous['testnet'],
@@ -285,13 +284,24 @@ class BIP32 {
 	 * still has values) where it will call itself again, or else if its 
 	 * work is done it returns the key.
 	 * 
-	 * @param	string	$parent
+	 * @param	string	$input
 	 * @param	string	$string_def
 	 * @return	string
 	 */
-	public static function build_key($parent, $string_def) {
+	public static function build_key($input, $string_def) {
+		if(is_array($input) && count($input) == 2) {
+			$parent = $input[0];
+			$def = $input[1];
+		} else if(is_string($input) == TRUE) {
+			$parent = $input;
+		} else {
+			return FALSE;
+		}
 		$address_definition = self::get_definition_tuple($parent, $string_def);
 		$extended_key = self::CKD($parent, $address_definition);
+		if(isset($def)== TRUE){
+			$extended_key[1] = $def."/".$extended_key[1];
+		}
 		return $extended_key;
 	}
 	
@@ -367,8 +377,14 @@ class BIP32 {
 		$key['address_number'] = self::get_address_number($key['i']);
 		$key['chain_code'] = substr($hex, 26, 64);
 
-		$key_start_position = ($key['type'] == 'public') ? 90 : 92;
-		$key['key'] = substr($hex, $key_start_position, 64);
+		if($key['type'] == 'public') {
+			$key_start_position = 90;
+			$offset = 66;
+		} else {
+			$key_start_position = 92;
+			$offset = 64;
+		}
+		$key['key'] = substr($hex, $key_start_position, $offset);
 		return $key;
 	}
 
@@ -381,16 +397,46 @@ class BIP32 {
 	 * @param	string	$ext_private_key
 	 * @return	string
 	 */
-	public static function extended_private_to_public($ext_private_key, $generated = FALSE) {
+	public static function extended_private_to_public($input) {
+		if(is_array($input) && count($input) == 2){
+			$ext_private_key = $input[0];
+			$generated = $input[1];
+		} else if(is_string($input) == TRUE) {
+			$ext_private_key = $input;
+			$generated = FALSE;
+		} else {
+			return FALSE;
+		}
+		
 		$pubkey = self::import($ext_private_key);
+		if($pubkey['type'] !== 'private')
+			return FALSE;
+			
 		$pubkey['key'] = BitcoinLib::private_key_to_public_key($pubkey['key'], TRUE);
 		$pubkey['type'] = 'public';
 		
-		if($generated !== FALSE){
+		if($generated !== FALSE) {
 			$generated = str_replace('m', 'M', $generated);
 			return array(self::encode($pubkey), $generated);
+		} else {
+			return self::encode($pubkey);
 		}
-		return self::encode($pubkey);
+	}
+	
+	
+	public static function extract_public_key($input) {
+		if(is_array($input) && count($input) == 2) {
+			$ext_key = $input[0];
+			$generated = $input[1];
+		} else if(is_string($input) == TRUE) {
+			$ext_key = $input;
+			$generated = FALSE;
+		} else {
+			return FALSE;
+		}
+		
+		$import = self::import($ext_key);
+		return ($import['type'] == 'private') ? BitcoinLib::private_key_to_public_key($import['key'], TRUE) : $import['key'];
 	}
 	
 	/**
@@ -558,7 +604,17 @@ class BIP32 {
 	 * @param	string	$hex
 	 * @param	int
 	 */
-	public function get_address_number($hex) {
+	public function get_address_number($hex, $is_prime = 0) {
+		if($is_prime == 1)
+			$hex = str_pad(
+						gmp_strval(
+							gmp_sub(
+								gmp_init($hex, 16),
+								gmp_init('80000000', 16)
+							),
+							16
+						),
+						8, '0', STR_PAD_LEFT);
 		$dec = gmp_strval(gmp_init($hex, 16),10);
 		$n = $dec & 0x7fffffff;
 		return $n;
