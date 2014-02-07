@@ -97,7 +97,7 @@ class BIP32 {
 					'key' => $I_l,
 					);
 
-		return self::encode($data);
+		return array(self::encode($data), 'm');
 	}
 
 	/**
@@ -109,13 +109,14 @@ class BIP32 {
 	 * generates the desired key. If the $address_definition tuple is 
 	 * empty, then it returns the key. If not, then it calls itself again 
 	 * with the new key and the tuple with the remaining key indexes to 
-	 * generate, but will terminate with the desired key.
+	 * generate, but will terminate with an array containing the desired
+	 * key at index 0, and it's human readable definition in the second.
 	 * 
 	 * @param	string	$master
 	 * @param	array	$address_definition
-	 * @return	string
+	 * @return	array
 	 */
-	public static function CKD($master, $address_definition) {
+	public static function CKD($master, $address_definition, $generated = array()) {
 		$previous = self::import($master);
 		
 		if($previous['type'] == 'private') {
@@ -146,10 +147,21 @@ class BIP32 {
 		$I = hash_hmac('sha512', pack("H*", $data), pack("H*", $previous['chain_code']));
 		$I_l = substr($I, 0, 64);
 		$I_r = substr($I, 64, 64);
+		
+			
 		if(self::check_valid_hmac_key($I_l) == FALSE) {
-			// Should recalculate a new i to use.
-			return FALSE;
+			// calculate the next i in the sequence, and start over with that. 
+			$new_i = self::calc_address_bytes(self::get_address_number($i)+1, $is_prime);
+			array_push($address_definition, $new_i);
+			return self::CKD($master, $address_definition, $generated);
 		}
+		
+		// Keep a record of the address being built. Done after error 
+		// checking so only valid keys get to this point.
+		if(count($generated) == 0 && $previous['depth'] == 0)
+			array_push($generated, (($previous['type'] == 'private') ? 'm' : 'M'));
+			
+		array_push($generated, (self::get_address_number($i).(($is_prime == 1) ? "'" : NULL)));
 		
 		$g = SECcurve::generator_secp256k1();
 		$n = $g->getOrder();
@@ -203,7 +215,7 @@ class BIP32 {
 					 'key' => $key
 				);
 				
-		return (count($address_definition) > 0) ? self::CKD(self::encode($data), $address_definition) : self::encode($data);
+		return (count($address_definition) > 0) ? self::CKD(self::encode($data), $address_definition, $generated) : array(self::encode($data), implode('/', $generated));
 	}
 
 	/**
@@ -296,7 +308,7 @@ class BIP32 {
 	 */
 	public static function build_address($master, $string_def) {
 		$extended_key = self::build_key($master, $string_def);
-		return self::key_to_address($extended_key);
+		return array(self::key_to_address($extended_key[0]), $extended[1]);
 	}
 
 	/**
@@ -369,10 +381,15 @@ class BIP32 {
 	 * @param	string	$ext_private_key
 	 * @return	string
 	 */
-	public static function extended_private_to_public($ext_private_key) {
+	public static function extended_private_to_public($ext_private_key, $generated = FALSE) {
 		$pubkey = self::import($ext_private_key);
 		$pubkey['key'] = BitcoinLib::private_key_to_public_key($pubkey['key'], TRUE);
 		$pubkey['type'] = 'public';
+		
+		if($generated !== FALSE){
+			$generated = str_replace('m', 'M', $generated);
+			return array(self::encode($pubkey), $generated);
+		}
 		return self::encode($pubkey);
 	}
 	
