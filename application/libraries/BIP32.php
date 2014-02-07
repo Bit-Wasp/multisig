@@ -239,13 +239,6 @@ class BIP32 {
 		
 		// Start building the address bytes tuple.
 		foreach($address_definition as &$def) {
-			// If the parent's depth is zero, then the child must use
-			// the hardened/prive key derivation.
-			if($depth == 0) {
-				$def = self::calc_address_bytes($def, 1);
-				$depth++;
-				continue;
-			}
 			
 			// Check if we want the prime derivation
 			$want_prime = 0;
@@ -254,15 +247,7 @@ class BIP32 {
 				str_replace("'", '', $def);
 				$want_prime = 1;
 			}
-			// If the depth of the parent is 1, then next index is for
-			// the change specifier. Can only be 0 or 1.
-			if($depth == 1 ) {
-				if(!($def == 0 || $def == 1)) {
-					echo "must be 0 or 1 for external/internal\n";
-					return FALSE;
-				}
-			}
-			// Generate non-hardened keys otherwise.
+
 			$def = self::calc_address_bytes($def, $want_prime);
 			$depth++;
 		}
