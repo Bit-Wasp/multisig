@@ -1,6 +1,17 @@
-<?php //if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
 
 require_once(dirname(__FILE__).'/ecc-lib/auto_load.php');
+
+/**
+ * BitcoinLib
+ * 
+ * This library is largely a rewrite of theymos' bitcoin library, 
+ * along with some more functions for key manipulation.
+ * 
+ * It depends on php-ecc, written by Mathyas Danter.
+ * 
+ * Thomas Kerin
+ */
 
 class BitcoinLib {
 	
@@ -46,12 +57,37 @@ class BitcoinLib {
 	 * Base58 Decode
 	 * 
 	 * Takes a base58 encoded string as input and returns the decoded 
-	 * data.
+	 * data. This function was borrowed from Theymos' bitcoin library. 
 	 * 
 	 * @param	string	$base58
 	 * @return	string
+	 * @author	theymos
 	 */
 	public static function base58_decode($base58) {
+		$origbase58 = $base58;
+
+		$return = "0";
+		for ($i = 0; $i < strlen($base58); $i++) {
+			$current = (string) strpos(self::$base58chars, $base58[$i]);
+			$return = (string) bcmul($return, "58", 0);
+			$return = (string) bcadd($return, $current, 0);
+		}
+
+		$return = self::hex_encode($return);
+
+		//leading zeros
+		for ($i = 0; $i < strlen($origbase58) && $origbase58[$i] == "1"; $i++) {
+			$return = "00" . $return;
+		}
+
+		if (strlen($return) % 2 != 0) {
+			$return = "0" . $return;
+		}
+
+		return $return;
+	}
+
+	public static function base58_decode2($base58) {
 		$origbase58 = $base58;
 
 		$return = "0";
@@ -78,10 +114,12 @@ class BitcoinLib {
 	/**
 	 * Base58 Encode
 	 * 
-	 * Encodes a $hex string in base58 format.
+	 * Encodes a $hex string in base58 format. Borrowed from theymos' 
+	 * bitcoin library.
 	 * 
 	 * @param	string	$hex
 	 * @return	string
+	 * @author	theymos
 	 */
 	public static function base58_encode($hex) {
 		if (strlen($hex) % 2 != 0) {
@@ -197,7 +235,7 @@ class BitcoinLib {
 		$n = $g->getOrder();
 
 		$privKey = gmp_strval(gmp_init(bin2hex(openssl_random_pseudo_bytes(32)),16));
-		while($privKey > $n) {
+		while($privKey >= $n) {
 			$privKey = gmp_strval(gmp_init(bin2hex(openssl_random_pseudo_bytes(32)),16));
 		}
 		$privKeyHex = self::hex_encode($privKey);

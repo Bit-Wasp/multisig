@@ -80,6 +80,7 @@ class Transaction {
 			if($output_v == $vout){
 				$scriptPubKey = $output['scriptPubKey']['hex'];
 				$value = $output['value'];
+				break;
 			}
 		}
 		
