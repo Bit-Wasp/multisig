@@ -3,6 +3,8 @@
 require_once(dirname(__FILE__).'/../application/libraries/BitcoinLib.php');
 require_once(dirname(__FILE__).'/../application/libraries/BIP32.php');
 
+
+echo BitcoinLib::base58_decode('mhXLvYbWuZjsdmT7XKkrRiq8PCBQzga4YU')."\n";
 // Load a 128 bit key, and convert this to extended key format.
 $master = BIP32::master_key('41414141414141414141414141414141414141');
 $def = "0'";

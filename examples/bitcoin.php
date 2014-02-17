@@ -15,5 +15,7 @@ print_r($decompress);
 
 echo "\n";
 $address = BitcoinLib::public_key_to_address($compress, $magic_byte);
-echo "address from compressed key : $address\n";
 
+echo "decoding $address\n";
+echo BitcoinLib::base58_decode($address);
+echo "\n\n";

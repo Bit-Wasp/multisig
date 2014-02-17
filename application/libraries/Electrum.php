@@ -34,12 +34,16 @@ class Electrum {
 	public function stretch_seed($seed) {
 		$oldseed = $seed;
 		
-		// Stretch the $seed by hashing repeatedly.
-		for($i = 0; $i < 100000; $i++) {
-			$seed = pack("H*", hash('sha256', $seed.$oldseed));
+		// Perform sha256 hash 5 times per iteration
+		for($i = 0; $i < 20000; $i++) {
+			// Hash should return binary data
+			$seed = hash('sha256', hash('sha256', hash('sha256', hash('sha256', hash('sha256', $seed.$oldseed, TRUE).$oldseed, TRUE).$oldseed, TRUE).$oldseed, TRUE).$oldseed, TRUE);
 		}
+
+		// Convert binary data to hex.
+		$seed = bin2hex($seed);
 		return array('original' => $oldseed,
-					 'seed' => bin2hex($seed));
+					 'seed' => $seed);
 	}
 	
 	/**

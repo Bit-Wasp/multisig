@@ -47,7 +47,7 @@ class BIP32 {
 	public static $bitcoin_mainnet_version = '00';
 	public static $bitcoin_testnet_public = '043587cf';
 	public static $bitcoin_testnet_private = '04358394';
-	public static $bitcoin_testnet_version = '6F';
+	public static $bitcoin_testnet_version = '6f';
 	// Dogecoin
 	public static $dogecoin_mainnet_public = '02facafd';
 	public static $dogecoin_mainnet_private = '02fac398';
@@ -56,12 +56,12 @@ class BIP32 {
 	public static $dogecoin_testnet_private = '0432a243';
 	public static $dogecoin_testnet_version = '71';
 	// Litecoin
-	public static $litecoin_mainnet_public = '';
-	public static $litecoin_mainnet_private = '';
-	public static $litecoin_mainnet_version = '';
-	public static $litecoin_testnet_public = '';
-	public static $litecoin_testnet_private = '';
-	public static $litecoin_testnet_version = '';
+	public static $litecoin_mainnet_public = '019da462';
+	public static $litecoin_mainnet_private = '019d9cfe';
+	public static $litecoin_mainnet_version = '30';
+	public static $litecoin_testnet_public = '0436f6e1';
+	public static $litecoin_testnet_private = '0436ef7d';
+	public static $litecoin_testnet_version = '6f';
 	
 	/**
 	 * Master Key
@@ -147,7 +147,6 @@ class BIP32 {
 		$I = hash_hmac('sha512', pack("H*", $data), pack("H*", $previous['chain_code']));
 		$I_l = substr($I, 0, 64);
 		$I_r = substr($I, 64, 64);
-		
 			
 		if(self::check_valid_hmac_key($I_l) == FALSE) {
 			// calculate the next i in the sequence, and start over with that. 
@@ -256,7 +255,6 @@ class BIP32 {
 		return array_reverse($address_definition);
 	}
 
-
 	/**
 	 * Build Key
 	 * 
@@ -284,7 +282,7 @@ class BIP32 {
 		}
 		$address_definition = self::get_definition_tuple($parent, $string_def);
 		
-		if(isset($def)== TRUE){
+		if(isset($def)== TRUE) {
 			$extended_key = self::CKD($parent, $address_definition, explode("/", $def));
 			return $extended_key;
 		} else {
@@ -477,6 +475,7 @@ class BIP32 {
 				$key['network'] = 'bitcoin';
 				$key['version'] = self::$bitcoin_mainnet_version;
 				break;				
+
 			case self::$bitcoin_testnet_public :
 				$key['type'] = 'public';
 				$key['testnet'] = true;
@@ -489,6 +488,7 @@ class BIP32 {
 				$key['network'] = 'bitcoin';
 				$key['version'] = self::$bitcoin_testnet_version;
 				break;		
+
 			case self::$dogecoin_mainnet_public :
 				$key['type'] = 'public';
 				$key['testnet'] = false;
@@ -500,7 +500,8 @@ class BIP32 {
 				$key['testnet'] = false;
 				$key['network'] = 'dogecoin';
 				$key['version'] = self::$dogecoin_mainnet_version;
-				break;				
+				break;	
+
 			case self::$dogecoin_testnet_public :
 				$key['type'] = 'public';
 				$key['testnet'] = true;
@@ -513,6 +514,33 @@ class BIP32 {
 				$key['network'] = 'dogecoin';
 				$key['version'] = self::$dogecoin_testnet_version;
 				break;		
+
+			case self::$litecoin_mainnet_public :
+				$key['type'] = 'public';
+				$key['testnet'] = false;
+				$key['network'] = 'litecoin';
+				$key['version'] = self::$litecoin_mainnet_version;
+				break;
+			case self::$litecoin_mainnet_private :
+				$key['type'] = 'private';
+				$key['testnet'] = false;
+				$key['network'] = 'litecoin';
+				$key['version'] = self::$litecoin_mainnet_version;
+				break;	
+
+			case self::$litecoin_testnet_public :
+				$key['type'] = 'public';
+				$key['testnet'] = true;
+				$key['network'] = 'litecoin';
+				$key['version'] = self::$litecoin_testnet_version;
+				break;				
+			case self::$dogecoin_testnet_private :
+				$key['type'] = 'private';
+				$key['testnet'] = true;
+				$key['network'] = 'litecoin';
+				$key['version'] = self::$litecoin_testnet_version;
+				break;		
+
 			default:
 				return FALSE;
 		}
