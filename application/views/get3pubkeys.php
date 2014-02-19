@@ -118,7 +118,9 @@ $ bitcoind validateaddress mhv2RQGndPeg2f2UykXeHASJYuLGyLUGXt
 
 	</div>
 
-	<p class="footer">This site should only be used for test transactions. Page rendered in <strong>{elapsed_time}</strong> seconds</p>
+        <p class="footer">This site should only be used for test transactions. Page rendered in <strong>{elapsed_time}</strong> seconds. 
+        <?php echo anchor('https://github.com/Bit-Wasp/multisig', 'Download this code.'); ?></p>
+
 </div>
 
 </body>
