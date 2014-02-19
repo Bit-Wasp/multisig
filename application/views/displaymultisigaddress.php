@@ -70,11 +70,12 @@
 	<h1>Pay to Multisig Address: <?php echo $multisig['address']; ?></h1>
 
 	<div id="body">
+		<p>Now you need to import and pay to the multisignature address. Send a small amount, 0.0002 BTC for example to the address. Verify the redeemScript corresponds to these to public keys yourself!</p>
+		<p>You should bookmark <?php echo anchor('welcome/id/'.$multisig['unique_id'], 'this url'); ?> in case you want to visit this page later.</p>
+		
 		<b>Address:</b> <?php echo $multisig['address']; ?><br />
 		<b>Redeem Script:</b> <?php echo $multisig['redeemScript']; ?><br /><br />
 
-		Now you need to pay to the multisignature address. Send a small amount, 0.0002 for example to the above multisignature address.<br />
-		
 		<b>Add Multisig Address</b><br />
 		You will need to tell your client about the multisignature address so it can reconstruct the redeemScript later on when spending funds.
 		<table>
@@ -84,11 +85,12 @@
 			</thead>
 			<tbody>
 				<tr>
-					<?php 	$pubkey_str = '';
-							foreach($pubkeys as $pubkey){
-								$pubkey_str .= "\"$pubkey\",";
-							}
-							$pubkey_str = substr($pubkey_str, 0, (strlen($pubkey_str)-1));
+					<?php
+					$pubkey_str = "";
+					foreach($pubkeys as $pubkey){
+						$pubkey_str .= "\"{$pubkey}\",";
+					}
+					$pubkey_str = substr($pubkey_str, 0, (strlen($pubkey_str)-1));
 					?>
 					<td><textarea cols='45' rows='3'><?php echo "addmultisigaddress 2 '[{$pubkey_str}]'"; ?></textarea></td>
 				</tr>
@@ -97,12 +99,27 @@
 		<br />
 
 		<?php echo form_open('multisig2of'.$n.'/pay'.$n.'address'); ?>
-			Enter the transaction ID for the payment to this address: <br />
-			<input type='text' name='txid' value='' /><br />
-
-			Enter an address to pay the money back to:<br />
+			<p>Now pay to the multi-signature address. Transactions are displayed once mined in a block, but you can only spend them once <?php echo $minimum_confirmations; ?> confirmations are reached for all transactions.</p>
+			Enter an address to pay the money back to:	<br />
 			<input type='text' name='destination' value='' /><br />
-			<input type='submit' value='Submit' />
+			
+			<?php if($payments !== FALSE) {
+				$display_button = TRUE;
+				echo '<pre>';
+				foreach($payments as $pmt) {
+					$confirmations = $current_block-$pmt['block_height']+1;
+					echo "BTC {$pmt['value']}   (block {$pmt['block_height']})   {$pmt['tx_id']} \n";
+					echo "    $confirmations confirmations\n\n";
+					if($confirmations < $minimum_confirmations)
+						$display_button = FALSE;
+				}
+				echo "</pre>\n";
+				if($display_button == TRUE)
+					echo "<input type=\"submit\" value=\"Submit\" />\n";
+					
+		} else {
+			echo '<br />Make payment to the address to proceed.';
+		}?>
 		</form>
 
 	</div>
@@ -112,3 +129,4 @@
 
 </body>
 </html>
+

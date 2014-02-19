@@ -11,9 +11,9 @@ $wallet[2] = BIP32::master_key('b861e093a58718e145b9791af35fb333');
 print_r($wallet);
 
 echo "Now we will generate a m/0' extended key. These will yield a private key\n";
-$user[0] = BIP32::build_key($wallet[0][0], '0');
-$user[1] = BIP32::build_key($wallet[1][0], '0');
-$user[2] = BIP32::build_key($wallet[2][0], '0');
+$user[0] = BIP32::build_key($wallet[0][0], "3'");
+$user[1] = BIP32::build_key($wallet[1][0], "23'");
+$user[2] = BIP32::build_key($wallet[2][0], "9'");
 print_r($user);
 
 // As the previous is a private key, we should convert to the corresponding

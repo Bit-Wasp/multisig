@@ -70,19 +70,50 @@
 	<h1>Add Public Keys</h1>
 
 	<div id="body">
-		Enter a public key in order to create the 2-of-2 signature p2sh address. Compressed, and uncompressed keys are supported.<br /><br />
-
+		<p>Enter a public key in order to create the 2-of-2 signature p2sh address. Compressed, and uncompressed keys are supported. It is recommended to use a new private/public key-pair each time when creating a multisignature address. When you sign a transaction redeeming funds in a multisignature address, you expose your public key on the block chain. Repeated use of the same keypair when signing can lead to opportunistic attacks that could compromise your private key.</p>
 		<?php echo form_open('multisig2of2'); ?>
 			Public Key 1 : <input type='text' name='public_key1' value='' /><br />
 			Public Key 2 : <input type='text' name='public_key2' value='<?php echo $public_key2; ?>' /><br />
 			<input type='submit' name='submit_public_keys' value='Submit' />
 		</form><br />
 	
-		You can generate a public key using bitcoind:<Br />
-		<pre>bitcoind validateaddress $(bitcoind getnewaddress)</pre><br />
+		<h3>How to Generate a Public Key</h3>
 
-		Alternatively, you could use <a href='http://brainwallet.org'>Brainwallet.org</a> and import it into your client using the following. Take care not to omit 'false', otherwise your client will scan the blockchain for transactions owned by this address.<br />
-		<pre>bitcoind importprivkey [private key] "" false</pre>
+		<b>Online:</b> Visit <?php echo anchor('https://coinb.in/multisig', "Coinb.in's multisig tool"); ?> or <?php echo anchor('http://brainwallet.org', 'Brainwallet'); ?> and to generate a new key pair. If you wish to sign using this key in Bitcoind/Bitcoin-QT, you can import it using the following snippet. This will import the key to the default account (the "" parameter), and will not trigger a re-scan of the blockchain for transactions (the "false" parameter).
+<pre>> importprivkey [private WIF] "" false</pre><br />
+
+		<b>Using Bitcoin-QT:</b>
+		Click Help - Debug Window. Click on the Console tab, and run the following commands:
+<pre>> getnewaddress
+mhv2RQGndPeg2f2UykXeHASJYuLGyLUGXt
+
+> validateaddress mhv2RQGndPeg2f2UykXeHASJYuLGyLUGXt
+{
+	"isvalid" : true,
+	"address" : "mhv2RQGndPeg2f2UykXeHASJYuLGyLUGXt",
+	"ismine" : true,
+	"isscript" : false,
+	"pubkey" : "039557a252bcf93dd2de20059582659c5736cbb19bd8af631dcc31eacc5f1928c6",
+	"iscompressed" : true,
+	"account" : ""
+}
+</pre><br />		
+
+		<b>Using BitcoinD:</b> If you are calling bitcoind from the command-line, prefix the commands for Bitcoin-QT with bitcoind:
+<pre>$ bitcoind getnewaddress
+mhv2RQGndPeg2f2UykXeHASJYuLGyLUGXt
+
+$ bitcoind validateaddress mhv2RQGndPeg2f2UykXeHASJYuLGyLUGXt
+{
+	"isvalid" : true,
+	"address" : "mhv2RQGndPeg2f2UykXeHASJYuLGyLUGXt",
+	"ismine" : true,
+	"isscript" : false,
+	"pubkey" : "039557a252bcf93dd2de20059582659c5736cbb19bd8af631dcc31eacc5f1928c6",
+	"iscompressed" : true,
+	"account" : ""
+}
+</pre>	
 
 	</div>
 
