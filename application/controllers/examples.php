@@ -1,4 +1,4 @@
-<pre><?php 
+<?php 
 
 class Examples extends CI_Controller {
 
@@ -10,6 +10,7 @@ class Examples extends CI_Controller {
 		$this->load->model('bitcoin_model');
 		$tx = '0100000001d822eb0ab31f3433ed0a66c23c4f2009c65d8accc98845d1460ea3901a61a42900000000fb0048304502200d57bd6e8dbc8e5e05bdf3cc3e38c06c1ee70a89a8e416db36ce640483b5076f022100adc1e7af3c5462b89120a8bb55d333a22eb6c68f42c786a15155cc98ace5902c0147304402200b2b42e2be3c9e65a90b70c35cda2f223dead17a496f2dc73c29ee09bcf0dbf302204cae73b419d8cbdc4eec676538ff7fe22283209d1ee424db76114cd6096adb48014c67522103972a40fe95e0ee4b3c0d603d2050c6cb17445c4d4c26a82b7b6d33ebf26a3a1c4104b489488890567796846e31ef17a7cb877b2abafc733eb3caff1e28b48724bda8ba0202a42baf06a496b62c3999ee4680e49eef86a74bf6373ff417d2e30b415352aeffffffff0110270000000000001976a914f444a269154eb560bebd424c2b406f1789ed49d688ac00000000';
 		$ms = '34ZfDrV24sBE8QhpfDGi7F8yGnyFMoz9jt';
+		// Only works when you have the watch address and inputs!
 		var_dump($this->bitcoin_model->validate_transaction_hex($tx, $ms));
 	}
 	
@@ -20,10 +21,12 @@ class Examples extends CI_Controller {
 		$magic_byte = '00';
 		$string = trim('teach start paradise collect blade chill gay childhood creek picture creator branch');
 
+		// Decode the mnemonic into a seed.
 		$seed = Electrum::decode_mnemonic($string);
 		echo "Words: $string<br />";
 		echo "Seed:  $seed<br />";
 		
+		// Pre-generate the stretched seed
 		$secexp = Electrum::stretch_seed($seed);
 		$secexp = $secexp['seed'];
 		echo "Secret Exponent: $secexp<br />";
@@ -31,20 +34,21 @@ class Examples extends CI_Controller {
 		$mpk = Electrum::generate_mpk($seed);
 		echo "MPK: $mpk<br />";
 		for($i = 0; $i < 5; $i++) {
-			$privkey = Electrum::generate_private_key($seed, $i, 0);
+			// Generate the private key for address number $i
+			$privkey = Electrum::generate_private_key($secexp, $i, 0);
 			echo "Private key: $privkey<br />";
 			echo "Private WIF: ".BitcoinLib::private_key_to_WIF($privkey, $magic_byte)."<br />";
 
+			// Generate the public key for address number $i
 			$public_key = Electrum::public_key_from_mpk($mpk, $i);
 			echo "Public Key: $public_key<br />";
+
 			$address = BitcoinLib::public_key_to_address($public_key, $magic_byte);
 			echo "Public derivation: $address.<br />";
 			$address = BitcoinLib::private_key_to_address($privkey, $magic_byte);
 			echo "Private derivation: $address.<br />";
-			echo "-----------<br />";
+			echo "The two addresses above should match!<br />-----------<br />";
 		}
-
-
 	}
 
 	public function multisig()

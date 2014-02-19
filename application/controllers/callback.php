@@ -53,6 +53,7 @@ class Callback extends CI_Controller {
 		foreach($list as $tx) {
 			$t = $this->bitcoin->decoderawtransaction($this->bitcoin->getrawtransaction($tx['tx_id']));
 
+			// pay from multisig
 			if(count($t['vin']) > 0) {
 				// check txid/vout against array - any returned transactions
 				// contain inputs we have on record.
@@ -75,6 +76,7 @@ class Callback extends CI_Controller {
 				}
 			}
 
+			// pay to multisig
 			if(count($t['vout']) > 0) {
 				$output_list = $this->bitcoin_model->build_tx_output_array($t['txid'], $tx['block_height'], $t['vout']);
 				foreach($output_list as $tmp) {
@@ -84,6 +86,7 @@ class Callback extends CI_Controller {
 						$received_payments[] = $tmp;
 				}
 			}
+
 			$delete_cache[] = array('tx_id' => $tx['tx_id']);
 		}
 
