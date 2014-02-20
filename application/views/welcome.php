@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Escrow Testing</title>
+	<title>Multi-Signature Escrow</title>
 
 	<style type="text/css">
 
@@ -67,7 +67,7 @@
 <body>
 
 <div id="container">
-	<h1>Escrow Testing</h1>
+	<h1>Multi-Signature Escrow</h1>
 
 	<div id="body">
 		This site demonstrates 2 of 2, and 2 of 3 signature transactions in a simple way. You will be asked to send funds to a multisignature address, where the funds can only be released by signing the transaction to the address you chose. When done in this way, funds are not stored on a live wallet, and cannot be compromised by hacking this server.<Br />
